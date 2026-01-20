@@ -1,0 +1,183 @@
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Gestión de Productos</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Agregar
+    </button>
+  </div>
+
+  <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
+    <div class="max-h-96 overflow-y-auto">
+      <table class="table table-zebra table-pin-rows">
+        <thead>
+          <tr class="bg-base-200">
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Fecha</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of crudService.paginatedItems(); track item.id) {
+            <tr class="hover">
+              <td>{{ item.id }}</td>
+              <td class="font-medium">{{ item.name }}</td>
+              <td class="max-w-xs truncate">{{ item.description }}</td>
+              <td class="font-mono">${{ item.price.toFixed(2) }}</td>
+              <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <div class="flex justify-center gap-2">
+                  <button 
+                    class="btn btn-ghost btn-sm btn-square text-info"
+                    (click)="openEditModal(item)"
+                    title="Editar"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button 
+                    class="btn btn-ghost btn-sm btn-square text-error"
+                    (click)="openDeleteModal(item)"
+                    title="Eliminar"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center py-8 text-base-content/50">
+                No hay productos registrados
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  @if (crudService.totalPages() > 1) {
+    <div class="flex justify-center mt-6">
+      <div class="join">
+        <button 
+          class="join-item btn"
+          [disabled]="crudService.currentPage() === 1"
+          (click)="crudService.setPage(crudService.currentPage() - 1)"
+        >
+          «
+        </button>
+        @for (page of pagesArray(); track page) {
+          <button 
+            class="join-item btn"
+            [class.btn-active]="page === crudService.currentPage()"
+            (click)="crudService.setPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+        <button 
+          class="join-item btn"
+          [disabled]="crudService.currentPage() === crudService.totalPages()"
+          (click)="crudService.setPage(crudService.currentPage() + 1)"
+        >
+          »
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="text-center mt-4 text-sm text-base-content/70">
+    Mostrando {{ crudService.paginatedItems().length }} de {{ crudService.totalItems() }} productos
+  </div>
+</div>
+
+<!-- Agregar/Editar Modal -->
+<dialog #itemModal class="modal">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg mb-4">
+      {{ isEditMode() ? 'Editar Producto' : 'Agregar Producto' }}
+    </h3>
+    
+    <form (ngSubmit)="saveItem()">
+      <fieldset class="fieldset mb-4">
+        <legend class="fieldset-legend">Nombre</legend>
+        <input 
+          type="text" 
+          class="input input-bordered w-full" 
+          placeholder="Nombre del producto"
+          [(ngModel)]="formData.name"
+          name="name"
+          required
+        />
+      </fieldset>
+
+      <fieldset class="fieldset mb-4">
+        <legend class="fieldset-legend">Descripción</legend>
+        <textarea 
+          class="textarea textarea-bordered w-full" 
+          placeholder="Descripción del producto"
+          [(ngModel)]="formData.description"
+          name="description"
+          rows="3"
+          required
+        ></textarea>
+      </fieldset>
+
+      <fieldset class="fieldset mb-6">
+        <legend class="fieldset-legend">Precio</legend>
+        <input 
+          type="number" 
+          class="input input-bordered w-full" 
+          placeholder="0.00"
+          [(ngModel)]="formData.price"
+          name="price"
+          min="0"
+          step="0.01"
+          required
+        />
+      </fieldset>
+
+      <div class="modal-action">
+        <button type="button" class="btn" (click)="closeItemModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          {{ isEditMode() ? 'Guardar Cambios' : 'Agregar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<!-- Delete Confirmation Modal -->
+<dialog #deleteModal class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-error">Confirmar Eliminación</h3>
+    <p class="py-4">
+      ¿Estás seguro de que deseas eliminar el producto 
+      <strong>"{{ itemToDelete()?.name }}"</strong>? 
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-action">
+      <button class="btn" (click)="closeDeleteModal()">Cancelar</button>
+      <button class="btn btn-error" (click)="confirmDelete()">Eliminar</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

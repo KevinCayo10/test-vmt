@@ -1,0 +1,13 @@
+<div class="min-h-screen flex flex-col">
+  @if (authService.authenticated()) {
+    <app-header />
+  }
+  
+  <main class="flex-1">
+    <router-outlet />
+  </main>
+  
+  @if (authService.authenticated()) {
+    <app-footer />
+  }
+</div>
