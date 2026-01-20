@@ -4,7 +4,9 @@ import { InsuranceTypeRepository } from "../../../domain/repository/insurance_ty
 
 export class InsuranceTypeImplement implements InsuranceTypeRepository {
   async create(payload: Partial<InsuranceType>): Promise<InsuranceType> {
-    const repo = DBConfig.dataSource.getRepository<InsuranceType>(InsuranceType as any);
+    const repo = DBConfig.dataSource.getRepository<InsuranceType>(
+      InsuranceType as any,
+    );
     const entity = repo.create(payload as any);
     return await repo.save(entity as any);
   }

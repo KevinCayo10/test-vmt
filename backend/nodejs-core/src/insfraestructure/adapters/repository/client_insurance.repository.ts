@@ -4,7 +4,9 @@ import { ClientInsuranceRepository } from "../../../domain/repository/client_ins
 
 export class ClientInsuranceImplement implements ClientInsuranceRepository {
   async create(payload: Partial<ClientInsurance>): Promise<ClientInsurance> {
-    const repo = DBConfig.dataSource.getRepository<ClientInsurance>(ClientInsurance as any);
+    const repo = DBConfig.dataSource.getRepository<ClientInsurance>(
+      ClientInsurance as any,
+    );
     const entity = repo.create(payload as any);
     return await repo.save(entity as any);
   }
