@@ -1,0 +1,49 @@
+<div class="page">
+  <h2 class="text-3xl font-bold">Tipos de seguros</h2>
+  <button (click)="open()" class="btn btn-primary">Nuevo tipo</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Min</th>
+        <th>Max</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let it of items()">
+        <td>{{ it.id }}</td>
+        <td>{{ it.name }}</td>
+        <td>{{ it.minAmount }}</td>
+        <td>{{ it.maxAmount }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <dialog #modal class="modal">
+    <form method="dialog" class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Nuevo tipo de seguro</h3>
+
+      <legend class="fieldset-legend">
+        Nombre
+        <input [(ngModel)]="form.name" name="name" class="input input-bordered w-full" />
+      </legend>
+
+      <legend class="fieldset-legend">
+        Monto mínimo
+        <input type="number" [(ngModel)]="form.minAmount" name="minAmount" class="input input-bordered w-full" />
+      </legend>
+
+      <legend class="fieldset-legend">
+        Monto máximo
+        <input type="number" [(ngModel)]="form.maxAmount" name="maxAmount" class="input input-bordered w-full" />
+      </legend>
+
+      <menu>
+        <button (click)="save()" class="btn btn-primary">Guardar</button>
+        <button (click)="close()" class="btn">Cancelar</button>
+      </menu>
+    </form>
+  </dialog>
+</div>

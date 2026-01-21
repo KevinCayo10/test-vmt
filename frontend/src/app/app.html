@@ -1,13 +1,25 @@
 <div class="min-h-screen flex flex-col">
+
   @if (authService.authenticated()) {
-    <app-header />
+  <app-header></app-header>
   }
-  
+
+  @if (authService.authenticated()) {
+  <div class="flex flex-1">
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 p-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+  } @else {
   <main class="flex-1">
-    <router-outlet />
+    <router-outlet></router-outlet>
   </main>
-  
-  @if (authService.authenticated()) {
-    <app-footer />
   }
+
+  @if (authService.authenticated()) {
+  <app-footer></app-footer>
+  }
+
 </div>

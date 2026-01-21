@@ -1,0 +1,16 @@
+.page {
+  padding: 12px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 6px;
+}
+dialog {
+  padding: 12px;
+}

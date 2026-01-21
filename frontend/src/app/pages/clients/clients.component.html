@@ -1,0 +1,88 @@
+<div class="page">
+  <h2 class="text-3xl font-bold">Clientes</h2>
+  <button (click)="openAdd()" class="btn btn-primary">Nuevo cliente</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Identificación</th>
+        <th>Email</th>
+        <th>Tipo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of clients()">
+        <td>{{c.id}}</td>
+        <td>{{c.name}}</td>
+        <td>{{c.identification}}</td>
+        <td>{{c.email}}</td>
+        <td>{{c.clientType}}</td>
+        <td>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-primary" (click)="openAssignModal(c)">Asignar</button>
+            <button class="btn btn-sm btn-secondary" (click)="openManageModal(c)">Gestionar pólizas</button>
+          </div>
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+
+  <dialog #clientModal class="modal">
+    <form method="dialog" class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Nuevo cliente</h3>
+      <legend class="fieldset-legend">Nombre <input [(ngModel)]="form.name" name="name"
+          class="input input-bordered w-full" /></legend>
+      <legend class="fieldset-legend">Identificación <input [(ngModel)]="form.identification" name="identification"
+          class="input input-bordered w-full" /></legend>
+      <legend class="fieldset-legend">Email <input [(ngModel)]="form.email" name="email" type="email"
+          class="input input-bordered w-full" /></legend>
+      <legend class="fieldset-legend">Tipo <select [(ngModel)]="form.clientType" name="clientType">
+          <option value="PERSON">Persona</option>
+          <option value="COMPANY">Empresa</option>
+        </select></legend>
+      <menu>
+        <button (click)="save()" class="btn btn-primary">Guardar</button>
+        <button (click)="closeAdd()" class="btn">Cancelar</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog #assignModal class="modal">
+    <form method="dialog" class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Asignar seguro</h3>
+      <label>Tipo de seguro
+        <select [(ngModel)]="selectedInsuranceTypeId" name="insuranceType">
+          <option *ngFor="let it of insuranceTypes()" [ngValue]="it.id">{{it.name}} ({{it.minAmount}} -
+            {{it.maxAmount}})</option>
+        </select>
+      </label>
+      <menu>
+        <button type="button" (click)="confirmAssign()" class="btn btn-primary">Asignar</button>
+        <button type="button" (click)="closeAssignModal()" class="btn">Cancelar</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog #manageModal class="modal">
+    <form method="dialog" class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Pólizas de {{managingClient()?.name}}</h3>
+      <div *ngIf="clientInsurances().length === 0">No hay pólizas</div>
+      <ul>
+        <li *ngFor="let ins of clientInsurances()">
+          ID: {{ins.id}} — Tipo: {{ins.insuranceType?.name || ins.insuranceTypeId}} — Estado: {{ins.status}}
+          <button *ngIf="ins.status === 'ACTIVE'" (click)="doCancel(ins.id)"
+            class="btn btn-sm btn-error">Cancelar</button>
+          <button *ngIf="ins.status === 'CANCELLED'" (click)="doReactivate(ins.id)"
+            class="btn btn-sm btn-success">Reactivar</button>
+        </li>
+      </ul>
+      <menu>
+        <button (click)="closeManageModal()" class="btn">Cerrar</button>
+      </menu>
+    </form>
+  </dialog>
+</div>

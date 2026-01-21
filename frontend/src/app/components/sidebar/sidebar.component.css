@@ -1,0 +1,23 @@
+.sidebar {
+  width: 220px;
+  background: #1f2937; /* gray-800 */
+  color: #fff;
+  min-height: 100vh;
+  padding: 1rem;
+}
+.sidebar-header {
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.sidebar a {
+  color: #d1d5db; /* gray-300 */
+  text-decoration: none;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar li {
+  margin: 0.5rem 0;
+}

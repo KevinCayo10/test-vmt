@@ -1,5 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { ApiResponse } from '../utils/response.util';
 
 export interface User {
   id: number;
@@ -19,77 +23,90 @@ export interface RegisterData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly currentUser = signal<User | null>(null);
   private readonly isAuthenticated = signal<boolean>(false);
-
-  // Simulated users database
-  private users: (User & { password: string })[] = [
-    { id: 1, email: 'admin@example.com', name: 'Admin User', password: '123456' }
-  ];
+  private readonly roleIdSignal = signal<number | null>(null);
 
   readonly user = this.currentUser.asReadonly();
   readonly authenticated = this.isAuthenticated.asReadonly();
+  readonly roleId = this.roleIdSignal.asReadonly();
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+  ) {
     this.checkStoredAuth();
   }
 
   private checkStoredAuth(): void {
+    const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    if (token && storedUser) {
       const user = JSON.parse(storedUser) as User;
       this.currentUser.set(user);
       this.isAuthenticated.set(true);
     }
   }
 
-  login(credentials: LoginCredentials): { success: boolean; message: string } {
-    const user = this.users.find(
-      (u) => u.email === credentials.email && u.password === credentials.password
-    );
-
-    if (user) {
-      const { password, ...userData } = user;
-      this.currentUser.set(userData);
-      this.isAuthenticated.set(true);
-      localStorage.setItem('currentUser', JSON.stringify(userData));
-      return { success: true, message: 'Login exitoso' };
+  private decodeToken(token: string): any {
+    try {
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decodeURIComponent(escape(decoded)));
+    } catch (e) {
+      return null;
     }
+  }
 
-    return { success: false, message: 'Credenciales inválidas' };
+  async login(credentials: LoginCredentials): Promise<ApiResponse<{ token?: string }>> {
+    try {
+      const url = `${environment.apiBaseUrl}/auth/login`;
+      const obs = this.http.post<ApiResponse<{ token: string }>>(url, {
+        identifier: credentials.email,
+        password: credentials.password,
+      });
+      const data = await lastValueFrom(obs);
+      const token = data?.data?.token;
+      if (token == null) {
+        return { message: 'Token no recibido' };
+      }
+      localStorage.setItem('token', token);
+      const payload = this.decodeToken(token) ?? {};
+      const roleId = payload.roleId ?? null;
+      if (roleId != null) {
+        localStorage.setItem('roleId', String(roleId));
+        this.roleIdSignal.set(roleId);
+      }
+      const user: User = {
+        id: payload.id ?? 0,
+        email: payload.username ?? '',
+        name: payload.username ?? '',
+      };
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      this.currentUser.set(user);
+      this.isAuthenticated.set(true);
+      return { data: { token }, message: ' Login exitoso' };
+    } catch (error: any) {
+      const msg = error?.error?.message ?? error?.message ?? 'Error de red';
+      return { message: msg };
+    }
   }
 
   register(data: RegisterData): { success: boolean; message: string } {
-    const existingUser = this.users.find((u) => u.email === data.email);
-
-    if (existingUser) {
-      return { success: false, message: 'El email ya está registrado' };
-    }
-
-    const newUser = {
-      id: this.users.length + 1,
-      email: data.email,
-      name: data.name,
-      password: data.password
-    };
-
-    this.users.push(newUser);
-
-    const { password, ...userData } = newUser;
-    this.currentUser.set(userData);
-    this.isAuthenticated.set(true);
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-
-    return { success: true, message: 'Registro exitoso' };
+    // keep local/register simulation for now
+    return { success: false, message: 'Registro no implementado en frontend' };
   }
 
   logout(): void {
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
     this.router.navigate(['/auth']);
   }
 }

@@ -1,0 +1,11 @@
+<aside class="sidebar">
+  <div class="sidebar-header">Menu</div>
+  <nav>
+    <ul>
+      <li *ngIf="loading()">Cargando...</li>
+      <li *ngFor="let m of menus()">
+        <a [routerLink]="[m.path]">{{ m.name }}</a>
+      </li>
+    </ul>
+  </nav>
+</aside>

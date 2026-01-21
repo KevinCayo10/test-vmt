@@ -8,7 +8,7 @@ import { AuthService, type LoginCredentials } from '../../../services/auth.servi
   standalone: true,
   imports: [FormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
@@ -19,24 +19,25 @@ export class LoginComponent {
 
   protected credentials: LoginCredentials = {
     email: '',
-    password: ''
+    password: '',
   };
 
   onSubmit(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    // Simular delay de red
-    setTimeout(() => {
-      const result = this.authService.login(this.credentials);
-      
-      if (result.success) {
-        this.router.navigate(['/home']);
-      } else {
-        this.errorMessage.set(result.message);
-      }
-      
-      this.loading.set(false);
-    }, 500);
+    this.authService
+      .login(this.credentials)
+      .then((result) => {
+        if (result.data?.token) {
+          this.router.navigate(['/home']);
+        } else {
+          this.errorMessage.set(result.message || 'Error desconocido');
+        }
+      })
+      .catch((err) => {
+        this.errorMessage.set(err?.message ?? 'Error');
+      })
+      .finally(() => this.loading.set(false));
   }
 }
