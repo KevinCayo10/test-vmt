@@ -12,7 +12,10 @@ export class MenuRoleRoutes {
 
   static getRoutes(): Router {
     this.routes.post("/", controller.create.bind(controller));
+    this.routes.get("/all", controller.findAll.bind(controller));
+    this.routes.get("/:roleId", controller.findByRole.bind(controller));
     this.routes.get("/", controller.findByRole.bind(controller));
+
     return this.routes;
   }
 }

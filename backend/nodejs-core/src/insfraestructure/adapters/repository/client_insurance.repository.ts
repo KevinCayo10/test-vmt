@@ -11,6 +11,12 @@ export class ClientInsuranceImplement implements ClientInsuranceRepository {
     return await repo.save(entity as any);
   }
 
+  async findAllByClient(clientId: number): Promise<ClientInsurance[]> {
+    return await DBConfig.dataSource
+      .getRepository(ClientInsurance)
+      .find({ where: { client: { id: clientId } } as any });
+  }
+
   async findById(id: number): Promise<ClientInsurance | null> {
     return await DBConfig.dataSource
       .getRepository(ClientInsurance)

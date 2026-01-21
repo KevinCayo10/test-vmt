@@ -74,4 +74,9 @@ export class ClientInsuranceService {
     );
     return { ok: true };
   }
+
+  async findByClient(clientId: number) {
+    if (typeof this.repository.findAllByClient !== "function") return [];
+    return await (this.repository.findAllByClient as any)(clientId);
+  }
 }

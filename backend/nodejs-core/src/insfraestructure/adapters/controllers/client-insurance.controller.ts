@@ -24,6 +24,21 @@ export class ClientInsuranceController {
     }
   }
 
+  async listByClient(req: Request, res: Response) {
+    try {
+      const clientId = Number(req.params.clientId);
+      const result = await this.service.findByClient(clientId);
+      ResponseController({
+        req,
+        res,
+        data: result,
+        message: "Client insurances retrieved",
+      });
+    } catch (error: any) {
+      return res.status(500).json({ message: error?.message ?? "Error" });
+    }
+  }
+
   async cancel(req: Request, res: Response) {
     try {
       const clientId = Number(req.params.clientId);

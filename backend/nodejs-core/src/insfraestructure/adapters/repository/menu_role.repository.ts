@@ -14,4 +14,10 @@ export class MenuRoleImplement implements MenuRoleRepository {
       .getRepository(MenuRole)
       .find({ where: { role: { id: roleId } } as any });
   }
+
+  async findAll(): Promise<MenuRole[]> {
+    return await DBConfig.dataSource
+      .getRepository(MenuRole)
+      .find();
+  }
 }

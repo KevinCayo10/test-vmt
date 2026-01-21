@@ -4,4 +4,5 @@ export interface ClientInsuranceRepository {
   create: (payload: Partial<ClientInsurance>) => Promise<ClientInsurance>;
   findById: (id: number) => Promise<ClientInsurance | null>;
   update: (id: number, data: Partial<ClientInsurance>) => Promise<any>;
+  findAllByClient?: (clientId: number) => Promise<ClientInsurance[]>;
 }

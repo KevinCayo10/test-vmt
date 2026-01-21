@@ -11,6 +11,10 @@ export class ClientInsuranceRoutes {
   static readonly routes = Router();
 
   static getRoutes(): Router {
+    this.routes.get(
+      "/:clientId/insurances",
+      controller.listByClient.bind(controller),
+    );
     this.routes.post(
       "/:clientId/insurances",
       controller.assign.bind(controller),

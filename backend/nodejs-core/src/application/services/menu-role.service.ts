@@ -13,4 +13,8 @@ export class MenuRoleService {
   async findByRole(roleId: number) {
     return await this.repository.findAllByRole(roleId);
   }
+
+  async findAll() {
+    return await this.repository.findAll();
+  }
 }
